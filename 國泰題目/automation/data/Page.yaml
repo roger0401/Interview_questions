@@ -1,0 +1,20 @@
+burger_menu:
+  value: //a[@class='cubre-a-burger']
+
+product_introduction:
+  value: //div[@class='cubre-a-menuSortBtn -l1' and contains(text(), '產品介紹')]
+
+product_introduction_credit_card:
+  value: //div[@class='cubre-a-menuSortBtn' and contains(text(), '信用卡')]
+
+product_introduction_credit_card_list_count:
+  value: //div[@class='cubre-a-menuSortBtn cubre-u-mbOnly' and contains(text(), '信用卡')]/following-sibling::a
+
+credit_card_introduction:
+  value: //a[contains(text(), '卡片介紹')]
+
+disabled_card_title:
+  value: //div[normalize-space(text())='停發卡']
+
+disabled_card_swiper_pagination_bullet:
+  value: (//div[@class='cubre-o-slide__page swiper-pagination-clickable swiper-pagination-bullets'])[5]//*
