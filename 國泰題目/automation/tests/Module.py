@@ -1,4 +1,4 @@
-import os, logging, yaml, time
+import os, logging, yaml, time, allure
 from selenium.webdriver.common.by import By
 from pathlib import Path
 from selenium.webdriver.support.wait import WebDriverWait as WDW
@@ -141,7 +141,9 @@ class Module:
 
     def Screenshot(self, name):
         image_name = name + self.GetTimeStr()
-        self.screenshot(image_name)  # 截圖保存到指定子資料夾
+        path = self.screenshot(image_name)  # ✅ 接收回傳的完整路徑
+        with open(path, "rb") as image_file:
+            allure.attach(image_file.read(), name=image_name, attachment_type=allure.attachment_type.PNG)
         logging.info(image_name + ' - Screenshot Success')
 
 # 資料讀取與設定 ===================================================================================================================
