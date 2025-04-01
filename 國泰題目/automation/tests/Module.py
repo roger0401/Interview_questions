@@ -138,10 +138,11 @@ class Module:
         # 使用指定的資料夾（可包含子資料夾）
         filenamePath = os.path.join(self.ImageDict(), filename + '.png')
         self.driver.get_screenshot_as_file(filenamePath)
+        return filenamePath  # 重點是這行
 
     def Screenshot(self, name):
         image_name = name + self.GetTimeStr()
-        path = self.screenshot(image_name)  # ✅ 接收回傳的完整路徑
+        path = self.screenshot(image_name)  # 接收回傳的完整路徑
         with open(path, "rb") as image_file:
             allure.attach(image_file.read(), name=image_name, attachment_type=allure.attachment_type.PNG)
         logging.info(image_name + ' - Screenshot Success')
