@@ -1,5 +1,6 @@
 import os, logging, yaml, time
 from selenium.webdriver.common.by import By
+from pathlib import Path
 from selenium.webdriver.support.wait import WebDriverWait as WDW
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
@@ -151,23 +152,54 @@ class Module:
         return now
 
     def LoadData(self):
-        '''讀取指定目錄下的 Page.yaml'''
-        path = os.path.abspath(os.path.join(os.getcwd(), 'data', 'Page.yaml'))
-        with open(path, encoding="utf-8") as f:
-            try:
-                self.elementsData = yaml.safe_load(f)
-            except yaml.YAMLError as e:
-                logging.error(e)
+        '''從 cwd 或 __file__ 自動抓取 YAML，不受執行目錄影響'''
 
-    def env(self, url):
-            '''讀取指定目錄下的 env.yaml'''
-            config_path = os.path.abspath(os.path.join(os.getcwd(), "data", "env.yaml"))
-            with open(config_path, encoding="utf-8") as f:
-                try:
-                    env = yaml.safe_load(f)[url]
-                except yaml.YAMLError as e:
-                    logging.error(e)
-            return env
+        # 可能從 Jenkins、本地國泰題目、或其他地方執行
+        path_from_cwd = Path.cwd() / "國泰題目" / "automation" / "data" / "Page.yaml"
+        path_from_module = Path(__file__).parent.parent / "data" / "Page.yaml"
+
+        if path_from_cwd.exists():
+            path = path_from_cwd
+            print(f"[INFO] 使用 cwd 路徑載入：{path}")
+        elif path_from_module.exists():
+            path = path_from_module
+            print(f"[INFO] 使用模組相對路徑載入：{path}")
+        else:
+            print("[ERROR] 找不到 Page.yaml，請確認路徑或啟動目錄是否正確")
+            return
+
+        try:
+            with path.open(encoding="utf-8") as f:
+                self.elementsData = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            logging.error(e)
+
+    def env(self, key):
+        '''從 cwd 或 Module.py 相對路徑讀取 data/env.yaml 並回傳對應 key'''
+        
+        # 嘗試從執行目錄找
+        path_from_cwd = Path.cwd() / "國泰題目" / "automation" / "data" / "env.yaml"
+
+        # fallback：從 Module.py 相對路徑找
+        path_from_module = Path(__file__).parent.parent / "data" / "env.yaml"
+
+        if path_from_cwd.exists():
+            path = path_from_cwd
+            print(f"[INFO] 使用 cwd 路徑載入 env.yaml：{path}")
+        elif path_from_module.exists():
+            path = path_from_module
+            print(f"[INFO] 使用模組相對路徑載入 env.yaml：{path}")
+        else:
+            print("[ERROR] 找不到 env.yaml，請確認路徑是否正確")
+            return None
+
+        try:
+            with path.open(encoding="utf-8") as f:
+                env_config = yaml.safe_load(f)
+                return env_config.get(key)
+        except Exception as e:
+            logging.error(f"載入 env.yaml 發生錯誤：{e}")
+            return None
     
     def get_xpath_from_yaml(self, ele_name):
         ele_info = self.elementsData[ele_name]
